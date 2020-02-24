@@ -31,11 +31,11 @@ class Sorter final {
 
         auto action = [&output_dir](const fs::path& p) {
           const auto e{p.extension()};
-          for (const auto& r: rules) {
-              if (r.first.find(e)!=r.first.end()) {
-                  const auto dir{output_dir/r.second};
+          for (const auto&[exts, dest]: rules) {
+              if (exts.find(e)!=exts.end()) {
+                  const auto dir{output_dir/dest};
                   fs::create_directories(dir);
-                  std::cout << "Moving " << p << " to " << output_dir/r.second/p.filename() << std::endl;
+                  std::cout << "Moving " << p << " to " << dir/p.filename() << std::endl;
                   fs::rename(p, dir/p.filename());
               }
           }
