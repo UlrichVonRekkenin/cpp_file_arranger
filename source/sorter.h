@@ -34,16 +34,16 @@ class Sorter final {
           for (const auto&[exts, dest]: rules) {
               if (exts.find(e)!=exts.end()) {
                   const auto dir{output_dir/dest};
-                  fs::create_directories(dir);
+                  if (!fs::exists(dir)) fs::create_directories(dir);
                   std::cout << "Moving " << p << " to " << dir/p.filename() << std::endl;
                   fs::rename(p, dir/p.filename());
               }
           }
         };
 
-        for (auto& p: fs::directory_iterator(dir_to_sort)) {
-            if (!fs::is_directory(p) && !fs::is_symlink(p)) {
-                std::thread th(action, p);
+        for (auto& it: fs::directory_iterator(dir_to_sort)) {
+            if (!fs::is_directory(it) && !fs::is_symlink(it)) {
+                std::thread th(action, it);
                 th.join();
             }
         }
