@@ -1,20 +1,34 @@
 #include <iostream>
+#include <boost/program_options.hpp>
 #include "source/sorter.h"
 
 
 int main(int argc, char* argv[])
 {
-    if (argc>1) {
-        Sorter::sort(argv[1], argc==2 ? argv[2] : argv[1]);
+    namespace po = boost::program_options;
+    namespace fs = std::filesystem;
+
+    po::options_description desc("Allowed options");
+    desc.add_options()
+            ("help,h", "produce this message")
+            ("from,f", po::value<fs::path>(), "Directory to be sorted")
+            ("to,t", po::value<fs::path>(), "Directory to be moved. Default value is `from`.")
+            ("config,c", po::value<fs::path>(), "Path to config file");
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help") || argc==1) {
+        std::cout << desc << std::endl;
+        return 1;
     }
-    else {
-        std::cout << "Usage:\n\t sorter directory_/to_/sort [directory_/to_/move_/files]\n\n"
-                     "Example 1:\n\tsorted ~/Downloads\n"
-                     "move all files from '~/Downloads/` dir to the same folder "
-                     "but files were arranged by folders.\n\n"
-                     "Example 2:\n\tsorted ~/Downloads /path/to/other/folder\n"
-                     "move all files from '~/Downloads/` dir to another folder.";
-    }
+
+    const auto dest{vm["from"].as<fs::path>()};
+    const auto to = vm.count("to") ? vm["to"].as<fs::path>() : dest;
+    const auto conf = vm.count("conf") ? vm["conf"].as<fs::path>() : "";
+
+    tools::Sorter::sort(dest, to, conf);
 
     return 0;
 }
