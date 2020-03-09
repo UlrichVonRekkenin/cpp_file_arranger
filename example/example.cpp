@@ -12,5 +12,5 @@ int main()
     std::ofstream("sandbox/file.mp4");
     std::ofstream("sandbox/homeless.foo");
 
-    Sorter::sort("sandbox", "sandbox");
+    tools::Sorter::sort("sandbox", "sandbox");
 }
